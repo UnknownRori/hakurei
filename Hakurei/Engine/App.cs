@@ -12,10 +12,11 @@ public class App
 
     GraphicsPipeline pipeline;
     GPURenderer renderer;
-    GPUBuffer<VertexBuffer> vertexBuffer;
+    GPUBuffer<Vertex> vertexBuffer;
+    GPUBuffer<UInt32> indicesBuffer;
     Texture cat;
 
-    private readonly VertexBuffer[] _baseVertices = new VertexBuffer[]
+    private readonly Vertex[] _baseVertices = new Vertex[]
     {
         new() {Position = new Vec3(-0.5f, -0.5f, 0f), UV = new Vec2(0.0f, 1.0f) },
         new() {Position = new Vec3(0.5f, -0.5f, 0f),  UV = new Vec2(1.0f, 1.0f) },
@@ -37,15 +38,8 @@ public class App
         DefaultShader defaultShader = new DefaultShader(_device);
         pipeline = DefaultPipeline.CreatePipeline(_window, _device, defaultShader);
         renderer = new GPURenderer(_window, _device);
-        vertexBuffer = new GPUBuffer<VertexBuffer>(_device, SDL.GPUBufferUsageFlags.Vertex, 128);
+        vertexBuffer = new GPUBuffer<Vertex>(_device, SDL.GPUBufferUsageFlags.Vertex, 128);
 
-        var vertices = new VertexBuffer[]
-        {
-            new() {Position = new Vec3(-0.5f, -0.5f, 0f), UV = new Vec2(0.0f, 1.0f) },
-            new() {Position = new Vec3(0.5f, -0.5f, 0f),  UV = new Vec2(1.0f, 1.0f) },
-            new() {Position = new Vec3(0f, 0.5f, 0f),     UV = new Vec2(0.5f, 0.0f) },
-        };
-        vertexBuffer.Upload(vertices, 0);
     }
 
     ~App()
@@ -85,14 +79,14 @@ public class App
     {
         _angle += 0.02f;
 
-        var rotated = new VertexBuffer[_baseVertices.Length];
+        var rotated = new Vertex[_baseVertices.Length];
         float c = MathF.Cos(_angle);
         float s = MathF.Sin(_angle);
 
         for (int i = 0; i < _baseVertices.Length; i++)
         {
             var p = _baseVertices[i].Position;
-            rotated[i] = new VertexBuffer
+            rotated[i] = new Vertex
             {
                 Position = new Vec3(
                     p.x * c - p.y * s,
@@ -112,8 +106,9 @@ public class App
         renderer.ClearScreen(new Vec4(0.15f, 0.1f, 0.15f, 1f));
         renderer.BeginPass(pipeline);
             renderer.BindVertex(vertexBuffer);
+            renderer.BindIndices(indicesBuffer);
             renderer.BindTexture(cat);
-            renderer.Draw(3);
+            renderer.DrawIndexed(3);
         renderer.EndPass();
         renderer.Commit();
     }

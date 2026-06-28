@@ -6,7 +6,7 @@ public class DefaultPipeline
 {
     public static GraphicsPipeline CreatePipeline(Window window, GPUDevice device, DefaultShader shd)
     {
-        GraphicsPipelineBuilder<VertexBuffer> builder = new GraphicsPipelineBuilder<VertexBuffer>(shd.frag, shd.vert);
+        GraphicsPipelineBuilder<Vertex> builder = new GraphicsPipelineBuilder<Vertex>(shd.frag, shd.vert);
         builder.vertexAttributes.Add(new SDL.GPUVertexAttribute
         {
             Format = SDL.GPUVertexElementFormat.Float3,
