@@ -45,10 +45,34 @@ public class GPURenderer
     // Next will be to implement a proper vertex buffer binding system that can handle multiple buffers and attributes.
     public void BindVertex<T>(GPUBuffer<T> vertexBuffer) where T : unmanaged
     {
-        var bufferBinding = new SDL.GPUBufferBinding { Buffer = vertexBuffer.Buffer, Offset = 0 };
-        nint bufferBindingPtr = SDL.StructureToPointer<SDL.GPUBufferBinding>(bufferBinding);
+        SDL.GPUBufferBinding binding = new()
+        {
+            Buffer = vertexBuffer.Buffer,
+            Offset = 0
+        };
 
-        SDL.BindGPUVertexBuffers(_renderPass, 0, bufferBindingPtr, 1);
+        SDL.BindGPUVertexBuffers(
+            _renderPass,
+            0,
+           [binding],
+            1
+        );
+    }
+
+    public void BindIndices(GPUBuffer<UInt32> indicesBuffer)
+    {
+        SDL.GPUBufferBinding binding = new()
+        {
+            Buffer = indicesBuffer.Buffer,
+            Offset = 0
+        };
+        
+
+        SDL.BindGPUIndexBuffer(
+            _renderPass,
+           binding,
+           SDL.GPUIndexElementSize.IndexElementSize32Bit
+        );
     }
 
     public void BindTexture(Texture texture)
@@ -66,6 +90,11 @@ public class GPURenderer
     public void Draw(uint verticesCount)
     {
         SDL.DrawGPUPrimitives(_renderPass, verticesCount, 1, 0, 0);
+    }
+
+    public void DrawIndexed(uint numIndices)
+    {
+        SDL.DrawGPUIndexedPrimitives(_renderPass, numIndices, 1, 0, 0, 0);
     }
 
     public void EndPass()

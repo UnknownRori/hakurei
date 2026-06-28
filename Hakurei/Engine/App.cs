@@ -16,6 +16,10 @@ public class App
     GPUBuffer<UInt32> indicesBuffer;
     Texture cat;
 
+    private readonly UInt32[] _indices = new UInt32[]
+    {
+        0, 1, 2
+    };
     private readonly Vertex[] _baseVertices = new Vertex[]
     {
         new() {Position = new Vec3(-0.5f, -0.5f, 0f), UV = new Vec2(0.0f, 1.0f) },
@@ -39,7 +43,9 @@ public class App
         pipeline = DefaultPipeline.CreatePipeline(_window, _device, defaultShader);
         renderer = new GPURenderer(_window, _device);
         vertexBuffer = new GPUBuffer<Vertex>(_device, SDL.GPUBufferUsageFlags.Vertex, 128);
+        indicesBuffer = new GPUBuffer<uint>(_device, SDL.GPUBufferUsageFlags.Index, 128);
 
+        indicesBuffer.Upload(_indices);
     }
 
     ~App()
