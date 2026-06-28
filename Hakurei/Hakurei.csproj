@@ -5,12 +5,26 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="SDL3-CS" Version="3.4.10.5" />
+    <PackageReference Include="SDL3-CS.Windows" Version="3.4.10.5" />
     <PackageReference Include="SDL3-CS.Windows.Image" Version="3.4.4.5" />
     <PackageReference Include="SDL3-CS.Windows.Shadercross" Version="3.0.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Assets\cat.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Shaders\Default.frag.hlsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Shaders\Default.vert.hlsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
