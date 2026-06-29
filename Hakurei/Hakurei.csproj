@@ -19,6 +19,12 @@
     <None Update="Assets\cat.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Engine\Shaders\2D.frag.hlsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Shaders\2D.vert.hlsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Engine\Shaders\Default.frag.hlsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
