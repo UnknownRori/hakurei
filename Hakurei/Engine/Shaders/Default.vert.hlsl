@@ -1,4 +1,7 @@
-// TODO : Add Uniform buffer for color tint
+cbuffer UniformBlock : register(b0, space1)
+{
+    float4 tint;
+}
 
 struct Input
 {
@@ -17,7 +20,7 @@ Output main(Input input)
 {
     Output output;
     output.position = float4(input.position, 1.0);
-    output.color = float4(1.0, 1.0, 1.0, 1.0);
+    output.color = tint;
     output.uv = input.uv;
     return output;
 }

@@ -75,6 +75,14 @@ public class GPURenderer
         );
     }
 
+    public void PushVertexUniform<T>(T data) where T : unmanaged
+    {
+        nint dataPtr = Marshal.AllocHGlobal(Marshal.SizeOf<T>());
+        Marshal.StructureToPtr<T>(data, dataPtr, false);
+        SDL.PushGPUVertexUniformData(_cmdBuf, 0, dataPtr, (uint)Marshal.SizeOf<T>());
+        Marshal.FreeHGlobal(dataPtr);
+    }
+
     public void BindTexture(Texture texture)
     {
         var binding = new SDL.GPUTextureSamplerBinding

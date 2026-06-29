@@ -10,5 +10,5 @@ struct Input
 
 float4 main(Input input) : SV_Target0
 {
-    return tex.Sample(samp, input.uv);
+    return tex.Sample(samp, input.uv) * input.color;
 }

@@ -18,13 +18,15 @@ public class App
 
     private readonly UInt32[] _indices = new UInt32[]
     {
-        0, 1, 2
+        0, 1, 2,
+        2, 3, 0
     };
     private readonly Vertex[] _baseVertices = new Vertex[]
     {
-        new() {Position = new Vec3(-0.5f, -0.5f, 0f), UV = new Vec2(0.0f, 1.0f) },
-        new() {Position = new Vec3(0.5f, -0.5f, 0f),  UV = new Vec2(1.0f, 1.0f) },
-        new() {Position = new Vec3(0f, 0.5f, 0f),     UV = new Vec2(0.5f, 0.0f) },
+        new() { Position = new Vec3(-0.5f, -0.5f, 0f), UV = new Vec2(0.0f, 1.0f) },
+        new() { Position = new Vec3( 0.5f, -0.5f, 0f), UV = new Vec2(1.0f, 1.0f) },
+        new() { Position = new Vec3( 0.5f,  0.5f, 0f), UV = new Vec2(1.0f, 0.0f) },
+        new() { Position = new Vec3(-0.5f,  0.5f, 0f), UV = new Vec2(0.0f, 0.0f) },
     };
     private float _angle = 0f;
 
@@ -109,12 +111,13 @@ public class App
     protected virtual void Draw()
     {
         renderer.AcquireSwapChain();
+        renderer.PushVertexUniform(new Vec4(1.0f, 0.0f, 0.0f, 1.0f));
         renderer.ClearScreen(new Vec4(0.15f, 0.1f, 0.15f, 1f));
         renderer.BeginPass(pipeline);
             renderer.BindVertex(vertexBuffer);
             renderer.BindIndices(indicesBuffer);
             renderer.BindTexture(cat);
-            renderer.DrawIndexed(3);
+            renderer.DrawIndexed(6);
         renderer.EndPass();
         renderer.Commit();
     }
