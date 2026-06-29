@@ -10,10 +10,6 @@ public class ShaderBuilder
     public readonly string src;
     public string entryPoint = "main";
     public ShaderCross.ShaderStage stage;
-    public uint numUniform = 0;
-    public uint numSamplers = 0;
-    public uint numStorageTextures = 0;
-    public uint numStorageBuffer = 0;
 
     public ShaderBuilder(GPUDevice device, ShaderCross.ShaderStage stage, string src)
     {

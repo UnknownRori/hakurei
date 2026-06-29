@@ -20,7 +20,6 @@ public class DefaultShader
 
         string fragSrc = File.ReadAllText("Engine/Shaders/Default.frag.hlsl");
         ShaderBuilder fragBuilder = new ShaderBuilder(device, ShaderCross.ShaderStage.Fragment, fragSrc);
-        fragBuilder.numSamplers = 1;
         frag = fragBuilder.Build();
     }
 }

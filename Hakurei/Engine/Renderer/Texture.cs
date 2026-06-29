@@ -25,7 +25,7 @@ public class Texture : IDisposable
         _sampler = CreateSampler();
         Width = image.width;
         Height = image.height;
-        Upload(image)
+        Upload(image);
 
         image.Dispose();
         _id = imageId++;

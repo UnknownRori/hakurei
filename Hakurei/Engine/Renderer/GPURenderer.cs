@@ -19,6 +19,7 @@ public class GPURenderer
     private uint _swapChainHeight;
 
     public GPUDevice Device {  get { return _device; } }
+    public Window Window { get { return _window; } }
 
     public GPURenderer(Window window, GPUDevice device)
     {
@@ -102,9 +103,9 @@ public class GPURenderer
         SDL.DrawGPUPrimitives(_renderPass, verticesCount, 1, 0, 0);
     }
 
-    public void DrawIndexed(uint numIndices)
+    public void DrawIndexed(uint numIndices, uint firstIndicesIndex = 0, uint numInstance = 1)
     {
-        SDL.DrawGPUIndexedPrimitives(_renderPass, numIndices, 1, 0, 0, 0);
+        SDL.DrawGPUIndexedPrimitives(_renderPass, numIndices, numInstance, firstIndicesIndex, 0, 0);
     }
 
     public void EndPass()
