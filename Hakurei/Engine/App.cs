@@ -1,5 +1,6 @@
 ﻿using Hakurei.Engine.Math;
 using Hakurei.Engine.Renderer;
+using Hakurei.Engine.Renderer2D;
 using SDL3;
 
 namespace Hakurei.Engine;
@@ -10,25 +11,28 @@ public class App
     internal protected GPUDevice _device;
     private bool _running = true;
 
-    GraphicsPipeline pipeline;
     GPURenderer renderer;
-    GPUBuffer<Vertex> vertexBuffer;
-    GPUBuffer<UInt32> indicesBuffer;
+    Sprite2DBatcher catSpriteBatcher;
+
+    //GraphicsPipeline pipeline;
+    //GPURenderer renderer;
+    //GPUBuffer<Vertex> vertexBuffer;
+    //GPUBuffer<UInt32> indicesBuffer;
     Texture cat;
 
-    private readonly UInt32[] _indices = new UInt32[]
-    {
-        0, 1, 2,
-        2, 3, 0
-    };
-    private readonly Vertex[] _baseVertices = new Vertex[]
-    {
-        new() { Position = new Vec3(-0.5f, -0.5f, 0f), UV = new Vec2(0.0f, 1.0f) },
-        new() { Position = new Vec3( 0.5f, -0.5f, 0f), UV = new Vec2(1.0f, 1.0f) },
-        new() { Position = new Vec3( 0.5f,  0.5f, 0f), UV = new Vec2(1.0f, 0.0f) },
-        new() { Position = new Vec3(-0.5f,  0.5f, 0f), UV = new Vec2(0.0f, 0.0f) },
-    };
-    private float _angle = 0f;
+    //private readonly UInt32[] _indices = new UInt32[]
+    //{
+    //    0, 1, 2,
+    //    2, 3, 0
+    //};
+    //private readonly Vertex[] _baseVertices = new Vertex[]
+    //{
+    //    new() { Position = new Vec3(-0.5f, -0.5f, 0f), UV = new Vec2(0.0f, 1.0f) },
+    //    new() { Position = new Vec3( 0.5f, -0.5f, 0f), UV = new Vec2(1.0f, 1.0f) },
+    //    new() { Position = new Vec3( 0.5f,  0.5f, 0f), UV = new Vec2(1.0f, 0.0f) },
+    //    new() { Position = new Vec3(-0.5f,  0.5f, 0f), UV = new Vec2(0.0f, 0.0f) },
+    //};
+    //private float _angle = 0f;
 
 
     public App(string title, int width, int height, int flags)
@@ -41,13 +45,16 @@ public class App
 
         cat = new Texture(_device, "Assets/cat.png");
 
-        DefaultShader defaultShader = new DefaultShader(_device);
-        pipeline = DefaultPipeline.CreatePipeline(_window, _device, defaultShader);
         renderer = new GPURenderer(_window, _device);
-        vertexBuffer = new GPUBuffer<Vertex>(_device, SDL.GPUBufferUsageFlags.Vertex, 128);
-        indicesBuffer = new GPUBuffer<uint>(_device, SDL.GPUBufferUsageFlags.Index, 128);
+        catSpriteBatcher = new Sprite2DBatcher(renderer, cat);
 
-        indicesBuffer.Upload(_indices);
+        //DefaultShader defaultShader = new DefaultShader(_device);
+        //pipeline = DefaultPipeline.CreatePipeline(_window, _device, defaultShader);
+        //renderer = new GPURenderer(_window, _device);
+        //vertexBuffer = new GPUBuffer<Vertex>(_device, SDL.GPUBufferUsageFlags.Vertex, 128);
+        //indicesBuffer = new GPUBuffer<uint>(_device, SDL.GPUBufferUsageFlags.Index, 128);
+
+        //indicesBuffer.Upload(_indices);
     }
 
     ~App()
@@ -85,40 +92,45 @@ public class App
 
     protected virtual void Update()
     {
-        _angle += 0.02f;
+        catSpriteBatcher.PushSprite(new Vec2(-0.8f, -0.8f));
+        catSpriteBatcher.PushSprite(new Vec2(-0.5f, -0.5f));
+        //_angle += 0.02f;
 
-        var rotated = new Vertex[_baseVertices.Length];
-        float c = MathF.Cos(_angle);
-        float s = MathF.Sin(_angle);
+        //var rotated = new Vertex[_baseVertices.Length];
+        //float c = MathF.Cos(_angle);
+        //float s = MathF.Sin(_angle);
 
-        for (int i = 0; i < _baseVertices.Length; i++)
-        {
-            var p = _baseVertices[i].Position;
-            rotated[i] = new Vertex
-            {
-                Position = new Vec3(
-                    p.x * c - p.y * s,
-                    p.x * s + p.y * c,
-                    p.z
-                ),
-                UV = _baseVertices[i].UV
-            };
-        }
+        //for (int i = 0; i < _baseVertices.Length; i++)
+        //{
+        //    var p = _baseVertices[i].Position;
+        //    rotated[i] = new Vertex
+        //    {
+        //        Position = new Vec3(
+        //            p.x * c - p.y * s,
+        //            p.x * s + p.y * c,
+        //            p.z
+        //        ),
+        //        UV = _baseVertices[i].UV
+        //    };
+        //}
 
-        vertexBuffer.Upload(rotated, 0);
+        //vertexBuffer.Upload(rotated, 0);
     }
 
     protected virtual void Draw()
     {
         renderer.AcquireSwapChain();
-        renderer.PushVertexUniform(new Vec4(1.0f, 0.0f, 0.0f, 1.0f));
-        renderer.ClearScreen(new Vec4(0.15f, 0.1f, 0.15f, 1f));
-        renderer.BeginPass(pipeline);
-            renderer.BindVertex(vertexBuffer);
-            renderer.BindIndices(indicesBuffer);
-            renderer.BindTexture(cat);
-            renderer.DrawIndexed(6);
-        renderer.EndPass();
+            catSpriteBatcher.Submit();
         renderer.Commit();
+        
+        //renderer.ClearScreen(new Vec4(0.15f, 0.1f, 0.15f, 1f));
+        //renderer.BeginPass(pipeline);
+        //    renderer.PushVertexUniform(new Vec4(1.0f, 0.0f, 0.0f, 1.0f));
+        //    renderer.BindVertex(vertexBuffer);
+        //    renderer.BindIndices(indicesBuffer);
+        //    renderer.BindTexture(cat);
+        //    renderer.DrawIndexed(6);
+        //renderer.EndPass();
+        //renderer.Commit();
     }
 }
