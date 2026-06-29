@@ -11,6 +11,9 @@ public class Texture : IDisposable
     private nint _sampler;
     private GPUDevice _device;
 
+    public readonly uint Width;
+    public readonly uint Height;
+
     public nint texture { get => _texture; }
     public nint sampler{ get => _sampler; }
 
@@ -20,7 +23,9 @@ public class Texture : IDisposable
         _device = device;
         _texture = CreateGPUTexture(device, image);
         _sampler = CreateSampler();
-        Upload(image);
+        Width = image.width;
+        Height = image.height;
+        Upload(image)
 
         image.Dispose();
         _id = imageId++;
@@ -32,6 +37,8 @@ public class Texture : IDisposable
         _device = device;
         _texture = CreateGPUTexture(device, image);
         _sampler = CreateSampler();
+        Width = image.width;
+        Height = image.height;
         Upload(image);
 
         _id = imageId++;
