@@ -4,12 +4,9 @@ using System.Runtime.InteropServices;
 namespace Hakurei.Engine.Renderer2D;
 
 [StructLayout(LayoutKind.Sequential)]
-internal struct UniformBlock
+public struct Vertex2D
 {
-    public Mat4 mvp;
-
-    public UniformBlock(Mat4 mvp)
-    {
-        this.mvp  = mvp;
-    }
+    public Vec3 Position;
+    public Vec2 UV;
+    public PackedColor Tint;
 }

@@ -3,7 +3,7 @@
 namespace Hakurei.Engine.Math;
 
 [StructLayout(LayoutKind.Sequential)]
-public class Mat4
+public struct Mat4
 {
     float m11, m12, m13, m14;
     float m21, m22, m23, m24;

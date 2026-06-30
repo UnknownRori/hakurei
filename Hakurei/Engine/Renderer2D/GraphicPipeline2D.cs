@@ -8,7 +8,7 @@ internal class GraphicPipeline2D
     public static GraphicsPipeline CreatePipeline(Window window, GPUDevice device)
     {
         LoadShader(device, out var vert, out var frag);
-        GraphicsPipelineBuilder<Vertex> builder = new GraphicsPipelineBuilder<Vertex>(frag, vert);
+        GraphicsPipelineBuilder<Vertex2D> builder = new GraphicsPipelineBuilder<Vertex2D>(frag, vert);
         builder.vertexAttributes.Add(new SDL.GPUVertexAttribute
         {
             Format = SDL.GPUVertexElementFormat.Float3,
@@ -23,6 +23,14 @@ internal class GraphicPipeline2D
             Offset = 12,
             BufferSlot = 0,
             Location = 1,
+        });
+
+        builder.vertexAttributes.Add(new SDL.GPUVertexAttribute
+        {
+            Format = SDL.GPUVertexElementFormat.Ubyte4Norm,
+            Offset = 20,
+            BufferSlot = 0,
+            Location = 2,
         });
 
         return builder.Build(window, device);

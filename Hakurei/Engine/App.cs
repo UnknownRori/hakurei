@@ -92,8 +92,8 @@ public class App
 
     protected virtual void Update()
     {
-        catSpriteBatcher.PushSprite(new Vec2(-0.8f, -0.8f));
-        catSpriteBatcher.PushSprite(new Vec2(-0.5f, -0.5f));
+        catSpriteBatcher.PushSprite(new Vec2(-0.8f, -0.8f), new PackedColor(255, 255, 255, 255));
+        catSpriteBatcher.PushSprite(new Vec2(-0.5f, -0.5f), new PackedColor(255, 0, 0, 255));
         //_angle += 0.02f;
 
         //var rotated = new Vertex[_baseVertices.Length];
