@@ -18,6 +18,8 @@ public class GPURenderer
     private uint _swapChainWidth;
     private uint _swapChainHeight;
 
+    private RenderTarget? _renderTarget = null;
+
     public GPUDevice Device {  get { return _device; } }
     public Window Window { get { return _window; } }
     public uint SwapChainWidth { get { return _swapChainWidth; } } 
@@ -33,6 +35,11 @@ public class GPURenderer
     {
         _cmdBuf = SDL.AcquireGPUCommandBuffer(_device.device);
         SDL.WaitAndAcquireGPUSwapchainTexture(_cmdBuf, _window.window, out _swapChainTexture, out _swapChainWidth, out _swapChainHeight);
+    }
+
+    public void SetRenderTarget(RenderTarget? target = null)
+    {
+        this._renderTarget = target;
     }
 
     public void BeginPass(GraphicsPipeline pipeline)
@@ -113,7 +120,7 @@ public class GPURenderer
     public void EndPass()
     {
         SDL.EndGPURenderPass(_renderPass);
-        _renderPass = nint.Zero; _swapChainTexture = nint.Zero;
+        _renderPass = nint.Zero;
     }
 
     public void Commit()
@@ -122,13 +129,14 @@ public class GPURenderer
         {
             Logger.Fatal("Renderer", $"SubmitGPUCommandBuffer failed: {SDL.GetError()}");
         }
-
-        _cmdBuf = nint.Zero;
+        
         if (_colorTargetPtr != nint.Zero)
         {
             Marshal.FreeHGlobal(_colorTargetPtr);
             _colorTargetPtr = nint.Zero;
         }
+        _cmdBuf = nint.Zero;
+        _swapChainTexture = nint.Zero;
     }
 
     public void ClearScreen(Vec4 color)
@@ -141,7 +149,7 @@ public class GPURenderer
 
         var colorTargetInfo = new SDL.GPUColorTargetInfo
         {
-            Texture = _swapChainTexture,
+            Texture = _renderTarget != null ? _renderTarget.Texture.texture : _swapChainTexture,
             LoadOp = SDL.GPULoadOp.Clear,
             StoreOp = SDL.GPUStoreOp.Store,
             ClearColor = new SDL.FColor { R = color.r, G = color.g, B = color.b, A = color.a }

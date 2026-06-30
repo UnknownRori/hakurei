@@ -1,8 +1,3 @@
-cbuffer UniformBlock : register(b0, space1)
-{
-    float4 tint;
-}
-
 struct Input
 {
     float3 position : POSITION;
@@ -20,7 +15,7 @@ Output main(Input input)
 {
     Output output;
     output.position = float4(input.position, 1.0);
-    output.color = tint;
+    output.color = float4(1.0, 1.0, 1.0, 1.0);
     output.uv = input.uv;
     return output;
 }

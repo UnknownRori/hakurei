@@ -16,12 +16,13 @@ public class Texture : IDisposable
 
     public nint texture { get => _texture; }
     public nint sampler{ get => _sampler; }
+    public uint id { get  => _id; }
 
     public Texture(GPUDevice device, string filename)
     {
         Image image = new Image(filename);
         _device = device;
-        _texture = CreateGPUTexture(device, image);
+        _texture = CreateGPUTexture(device, SDL.GPUTextureType.TextureType2D, SDL.GPUTextureUsageFlags.Sampler, image.width, image.height);
         _sampler = CreateSampler();
         Width = image.width;
         Height = image.height;
@@ -35,11 +36,35 @@ public class Texture : IDisposable
     public Texture(GPUDevice device, Image image)
     {
         _device = device;
-        _texture = CreateGPUTexture(device, image);
+        _texture = CreateGPUTexture(
+            device,
+            SDL.GPUTextureType.TextureType2D, 
+            SDL.GPUTextureUsageFlags.Sampler, 
+            image.width, 
+            image.height
+        );
         _sampler = CreateSampler();
         Width = image.width;
         Height = image.height;
         Upload(image);
+
+        _id = imageId++;
+        Logger.Log("Renderer", $"Texture created successfully ({_id})");
+    }
+
+    public Texture(GPUDevice device, SDL.GPUTextureType type, SDL.GPUTextureUsageFlags usage, uint width, uint height)
+    {
+        _device = device;
+        _texture = CreateGPUTexture(
+            device, 
+            type, 
+            SDL.GPUTextureUsageFlags.Sampler | SDL.GPUTextureUsageFlags.ColorTarget, 
+            width, 
+            height
+        );
+        _sampler = CreateSampler();
+        Width = width;
+        Height = height;
 
         _id = imageId++;
         Logger.Log("Renderer", $"Texture created successfully ({_id})");
@@ -53,15 +78,21 @@ public class Texture : IDisposable
         Logger.Log("Renderer", $"Texture destroyed successfully ({_id})");
     }
 
-    private nint CreateGPUTexture(GPUDevice device, Image image)
+    private static nint CreateGPUTexture(
+        GPUDevice device, 
+        SDL.GPUTextureType type, 
+        SDL.GPUTextureUsageFlags usage, 
+        uint width, 
+        uint height
+       )
     {
         var textureInfo = new SDL.GPUTextureCreateInfo
         {
-            Type = SDL.GPUTextureType.TextureType2D,
-            Usage = SDL.GPUTextureUsageFlags.Sampler,
+            Type = type,
+            Usage = usage,
             Format = SDL.GPUTextureFormat.R8G8B8A8Unorm,
-            Width = image.width,
-            Height = image.height,
+            Width = width,
+            Height = height,
             LayerCountOrDepth = 1,
             NumLevels = 1,
         };

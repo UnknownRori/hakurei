@@ -17,7 +17,8 @@ public class Sprite2DBatcher
     private List<Vertex2D> vertex = new List<Vertex2D>();
     private List<UInt32> indices = new List<UInt32>();
     private Camera2D _camera;
-    
+
+    private RenderTarget? _renderTarget = null;
 
     public Sprite2DBatcher(GPURenderer renderer, Texture texture, uint maxInstance = 256)
     {
@@ -33,6 +34,11 @@ public class Sprite2DBatcher
     public void BindCamera(Camera2D camera)
     {
         this._camera = camera;
+    }
+
+    public void SetRenderTarget(RenderTarget? target)
+    {
+        this._renderTarget = target;
     }
 
     public void PushSprite(Vec2 position, PackedColor tint)
@@ -71,6 +77,8 @@ public class Sprite2DBatcher
 
         UniformBlock uni = new UniformBlock(_camera.GetViewProjection(renderer.SwapChainWidth, renderer.SwapChainHeight));
 
+        renderer.SetRenderTarget(_renderTarget);
+        renderer.ClearScreen(new Vec4(1.0f, 0.0f, 0.0f, 1.0f));
         renderer.BeginPass(pipeline);
             renderer.PushVertexUniform(uni);
             renderer.BindTexture(texture);
