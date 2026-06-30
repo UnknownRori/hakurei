@@ -16,17 +16,23 @@ public class Sprite2DBatcher
     private uint instanceCount = 0;
     private List<Vertex2D> vertex = new List<Vertex2D>();
     private List<UInt32> indices = new List<UInt32>();
-
-    public Vec4 tint = new Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    private Camera2D _camera;
+    
 
     public Sprite2DBatcher(GPURenderer renderer, Texture texture, uint maxInstance = 256)
     {
         this.renderer = renderer;
         this.texture = texture;
         this.pipeline = GraphicPipeline2D.CreatePipeline(renderer.Window, renderer.Device);
-        
+        this._camera = new Camera2D();
+
         vertexBuffer = new GPUBuffer<Vertex2D>(renderer.Device, SDL.GPUBufferUsageFlags.Vertex, (int) maxInstance * 4);
         indicesBuffer = new GPUBuffer<uint>(renderer.Device, SDL.GPUBufferUsageFlags.Index, (int) maxInstance * 6);
+    }
+
+    public void BindCamera(Camera2D camera)
+    {
+        this._camera = camera;
     }
 
     public void PushSprite(Vec2 position, PackedColor tint)
@@ -63,8 +69,7 @@ public class Sprite2DBatcher
         vertexBuffer.Upload(vertex.ToArray());
         indicesBuffer.Upload(indices.ToArray());
 
-        Camera2D cam = new Camera2D(renderer.SwapChainWidth, renderer.SwapChainHeight);
-        UniformBlock uni = new UniformBlock(cam.GetViewProjection());
+        UniformBlock uni = new UniformBlock(_camera.GetViewProjection(renderer.SwapChainWidth, renderer.SwapChainHeight));
 
         renderer.BeginPass(pipeline);
             renderer.PushVertexUniform(uni);

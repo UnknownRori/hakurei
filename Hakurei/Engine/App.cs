@@ -11,11 +11,12 @@ public class App
     internal protected GPUDevice _device;
     private bool _running = true;
 
+    Camera2D camera;
     GPURenderer renderer;
     Sprite2DBatcher catSpriteBatcher;
 
     Texture cat;
-
+    private const float _cameraSpeed = 4f;
 
     public App(string title, int width, int height, int flags)
     {
@@ -29,6 +30,7 @@ public class App
 
         renderer = new GPURenderer(_window, _device);
         catSpriteBatcher = new Sprite2DBatcher(renderer, cat);
+        camera = new Camera2D();
     }
 
     ~App()
@@ -66,6 +68,14 @@ public class App
 
     protected virtual void Update()
     {
+        var states = SDL.GetKeyboardState(out _);
+
+        if (states[(int)SDL.Scancode.W]) camera.Position.y += _cameraSpeed;
+        if (states[(int)SDL.Scancode.S]) camera.Position.y -= _cameraSpeed;
+        if (states[(int)SDL.Scancode.A]) camera.Position.x += _cameraSpeed;
+        if (states[(int)SDL.Scancode.D]) camera.Position.x -= _cameraSpeed;
+
+        catSpriteBatcher.BindCamera(camera);
         catSpriteBatcher.PushSprite(new Vec2(200.0f, 200.0f), new PackedColor(255, 255, 255, 255));
         catSpriteBatcher.PushSprite(new Vec2(100.0f, 100.0f), new PackedColor(255, 0, 0, 255));
     }

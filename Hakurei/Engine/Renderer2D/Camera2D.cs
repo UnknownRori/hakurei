@@ -11,17 +11,14 @@ public class Camera2D
 {
     public Vec2 Position;
     public float Zoom = 1f;
-    private readonly float screenWidth, screenHeight;
 
-    public Camera2D(float screenWidth, float screenHeight)
+    public Camera2D()
     {
-        this.screenWidth = screenWidth;
-        this.screenHeight = screenHeight;
         Position.x = 0;
         Position.y = 0;
     }
 
-    public Mat4 GetViewProjection()
+    public Mat4 GetViewProjection(uint screenWidth, uint screenHeight)
     {
         float left   = Position.x;
         float right  = Position.x + screenWidth / Zoom;
