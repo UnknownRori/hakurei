@@ -20,7 +20,7 @@ struct Output
 Output main(Input input)
 {
     Output output;
-    output.position = float4(input.position, 1.0);
+    output.position = mul(mvp, float4(input.position, 1.0));
     output.color = input.tint;
     output.uv = input.uv;
     return output;

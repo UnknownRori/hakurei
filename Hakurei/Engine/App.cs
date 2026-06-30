@@ -14,25 +14,7 @@ public class App
     GPURenderer renderer;
     Sprite2DBatcher catSpriteBatcher;
 
-    //GraphicsPipeline pipeline;
-    //GPURenderer renderer;
-    //GPUBuffer<Vertex> vertexBuffer;
-    //GPUBuffer<UInt32> indicesBuffer;
     Texture cat;
-
-    //private readonly UInt32[] _indices = new UInt32[]
-    //{
-    //    0, 1, 2,
-    //    2, 3, 0
-    //};
-    //private readonly Vertex[] _baseVertices = new Vertex[]
-    //{
-    //    new() { Position = new Vec3(-0.5f, -0.5f, 0f), UV = new Vec2(0.0f, 1.0f) },
-    //    new() { Position = new Vec3( 0.5f, -0.5f, 0f), UV = new Vec2(1.0f, 1.0f) },
-    //    new() { Position = new Vec3( 0.5f,  0.5f, 0f), UV = new Vec2(1.0f, 0.0f) },
-    //    new() { Position = new Vec3(-0.5f,  0.5f, 0f), UV = new Vec2(0.0f, 0.0f) },
-    //};
-    //private float _angle = 0f;
 
 
     public App(string title, int width, int height, int flags)
@@ -47,14 +29,6 @@ public class App
 
         renderer = new GPURenderer(_window, _device);
         catSpriteBatcher = new Sprite2DBatcher(renderer, cat);
-
-        //DefaultShader defaultShader = new DefaultShader(_device);
-        //pipeline = DefaultPipeline.CreatePipeline(_window, _device, defaultShader);
-        //renderer = new GPURenderer(_window, _device);
-        //vertexBuffer = new GPUBuffer<Vertex>(_device, SDL.GPUBufferUsageFlags.Vertex, 128);
-        //indicesBuffer = new GPUBuffer<uint>(_device, SDL.GPUBufferUsageFlags.Index, 128);
-
-        //indicesBuffer.Upload(_indices);
     }
 
     ~App()
@@ -92,29 +66,8 @@ public class App
 
     protected virtual void Update()
     {
-        catSpriteBatcher.PushSprite(new Vec2(-0.8f, -0.8f), new PackedColor(255, 255, 255, 255));
-        catSpriteBatcher.PushSprite(new Vec2(-0.5f, -0.5f), new PackedColor(255, 0, 0, 255));
-        //_angle += 0.02f;
-
-        //var rotated = new Vertex[_baseVertices.Length];
-        //float c = MathF.Cos(_angle);
-        //float s = MathF.Sin(_angle);
-
-        //for (int i = 0; i < _baseVertices.Length; i++)
-        //{
-        //    var p = _baseVertices[i].Position;
-        //    rotated[i] = new Vertex
-        //    {
-        //        Position = new Vec3(
-        //            p.x * c - p.y * s,
-        //            p.x * s + p.y * c,
-        //            p.z
-        //        ),
-        //        UV = _baseVertices[i].UV
-        //    };
-        //}
-
-        //vertexBuffer.Upload(rotated, 0);
+        catSpriteBatcher.PushSprite(new Vec2(200.0f, 200.0f), new PackedColor(255, 255, 255, 255));
+        catSpriteBatcher.PushSprite(new Vec2(100.0f, 100.0f), new PackedColor(255, 0, 0, 255));
     }
 
     protected virtual void Draw()

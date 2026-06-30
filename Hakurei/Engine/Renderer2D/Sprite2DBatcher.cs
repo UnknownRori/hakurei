@@ -31,8 +31,8 @@ public class Sprite2DBatcher
 
     public void PushSprite(Vec2 position, PackedColor tint)
     {
-        var width = 1f;
-        var height = 1f;
+        var width = texture.Width;
+        var height = texture.Height;
         var baseCount = (UInt32) vertex.Count();
 
         var vertices = new Vertex2D[]
@@ -63,7 +63,11 @@ public class Sprite2DBatcher
         vertexBuffer.Upload(vertex.ToArray());
         indicesBuffer.Upload(indices.ToArray());
 
+        Camera2D cam = new Camera2D(renderer.SwapChainWidth, renderer.SwapChainHeight);
+        UniformBlock uni = new UniformBlock(cam.GetViewProjection());
+
         renderer.BeginPass(pipeline);
+            renderer.PushVertexUniform(uni);
             renderer.BindTexture(texture);
             renderer.BindVertex(vertexBuffer);
             renderer.BindIndices(indicesBuffer);

@@ -20,6 +20,8 @@ public class GPURenderer
 
     public GPUDevice Device {  get { return _device; } }
     public Window Window { get { return _window; } }
+    public uint SwapChainWidth { get { return _swapChainWidth; } } 
+    public uint SwapChainHeight { get {  return _swapChainHeight; } } 
 
     public GPURenderer(Window window, GPUDevice device)
     {
