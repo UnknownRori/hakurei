@@ -13,6 +13,7 @@ public class Sprite2DBatcher
     private const int MAX_INSTANCE = 4096;
 
     private uint instanceCount = 0;
+    private uint _capacity;
     private List<Vertex2D> vertex = new List<Vertex2D>();
 
     private Texture? _texture = null;
@@ -20,6 +21,7 @@ public class Sprite2DBatcher
     public Sprite2DBatcher(GPURenderer renderer, uint maxInstance = 256)
     {
         this.renderer = renderer;
+        _capacity = maxInstance;
 
         if (maxInstance > MAX_INSTANCE)
         {
@@ -98,6 +100,8 @@ public class Sprite2DBatcher
     )
     {
         if (_texture != null && _texture.texture != texture.texture)
+            Flush();
+        if (instanceCount > _capacity)
             Flush();
 
         _texture = texture;
