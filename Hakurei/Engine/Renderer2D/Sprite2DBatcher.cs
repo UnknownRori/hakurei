@@ -49,34 +49,115 @@ public class Sprite2DBatcher
 
     public void DrawSprite(Texture texture, Vec2 position, PackedColor tint)
     {
+        DrawSpritePro(texture, position, new(1f), 0f, Vec2.Zero, new(0f, 0f, texture.Width, texture.Height), tint);
+    }
+
+    public void DrawSpritePro(Texture texture, Vec2 position, float scale, float radiansRotation, PackedColor tint)
+    {
+        DrawSpritePro(
+            texture,
+            position,
+            new(scale),
+            radiansRotation,
+            new(texture.Width / 2f, texture.Height / 2f),
+            new(0f, 0f, texture.Width, texture.Height),
+            tint
+        );
+    }
+
+    public void DrawSpritePro(
+        Texture texture,
+        Vec2 position,
+        Vec2 scale,
+        float radiansRotation,
+        Vec2 origin,
+        Rect region,
+        PackedColor tint
+    )
+    {
         if (_texture != null && _texture.texture != texture.texture)
             Flush();
 
         _texture = texture;
-        var width = texture.Width;
-        var height = texture.Height;
-        var baseCount = (UInt32)vertex.Count();
 
-        var vertices = new Vertex2D[]
+        float width = region.Width;
+        float height = region.Height;
+
+        UInt32 baseCount = (UInt32)vertex.Count;
+
+        float cos = MathF.Cos(radiansRotation);
+        float sin = MathF.Sin(radiansRotation);
+
+        Vec2 tl = new Vec2(-origin.x, -origin.y);
+        Vec2 tr = new Vec2(width - origin.x, -origin.y);
+        Vec2 br = new Vec2(width - origin.x, height - origin.y);
+        Vec2 bl = new Vec2(-origin.x, height - origin.y);
+
+        tl *= scale;
+        tr *= scale;
+        br *= scale;
+        bl *= scale;
+
+        tl = Rotate(tl, cos, sin);
+        tr = Rotate(tr, cos, sin);
+        br = Rotate(br, cos, sin);
+        bl = Rotate(bl, cos, sin);
+
+        tl += position;
+        tr += position;
+        br += position;
+        bl += position;
+
+        float u0 = region.X / texture.Width;
+        float v0 = region.Y / texture.Height;
+
+        float u1 = (region.X + region.Width) / texture.Width;
+        float v1 = (region.Y + region.Height) / texture.Height;
+
+        vertex.Add(new Vertex2D
         {
-            new () { Position = new Vec3(position.x        , position.y         , 0f), UV = new Vec2(0f, 1f), Tint = tint },
-            new () { Position = new Vec3(position.x + width, position.y         , 0f), UV = new Vec2(1f, 1f), Tint = tint },
-            new () { Position = new Vec3(position.x + width, position.y + height, 0f), UV = new Vec2(1f, 0f), Tint = tint },
-            new () { Position = new Vec3(position.x        , position.y + height, 0f), UV = new Vec2(0f, 0f), Tint = tint },
-        };
+            Position = new Vec3(tl.x, tl.y, 0f),
+            UV = new Vec2(u0, v1),
+            Tint = tint
+        });
 
-        var indexes = new UInt32[]
+        vertex.Add(new Vertex2D
         {
-            baseCount,
-            baseCount + 1,
-            baseCount + 2,
-            baseCount + 2,
-            baseCount + 3,
-            baseCount,
+            Position = new Vec3(tr.x, tr.y, 0f),
+            UV = new Vec2(u1, v1),
+            Tint = tint
+        });
 
-        };
-        vertex.AddRange(vertices);
-        indices.AddRange(indexes);
-        instanceCount += 1;
+        vertex.Add(new Vertex2D
+        {
+            Position = new Vec3(br.x, br.y, 0f),
+            UV = new Vec2(u1, v0),
+            Tint = tint
+        });
+
+        vertex.Add(new Vertex2D
+        {
+            Position = new Vec3(bl.x, bl.y, 0f),
+            UV = new Vec2(u0, v0),
+            Tint = tint
+        });
+
+        indices.Add(baseCount);
+        indices.Add(baseCount + 1);
+        indices.Add(baseCount + 2);
+
+        indices.Add(baseCount + 2);
+        indices.Add(baseCount + 3);
+        indices.Add(baseCount);
+
+        instanceCount++;
+    }
+
+    private static Vec2 Rotate(Vec2 v, float cos, float sin)
+    {
+        return new Vec2(
+            v.x * cos - v.y * sin,
+            v.x * sin + v.y * cos
+        );
     }
 }

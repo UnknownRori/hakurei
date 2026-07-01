@@ -22,6 +22,7 @@ public class App
 
     Texture cat;
     private const float _cameraSpeed = 4f;
+    private float rotation = 0f;
 
     public App(string title, int width, int height, int flags)
     {
@@ -96,6 +97,7 @@ public class App
     protected virtual void Update()
     {
         var states = SDL.GetKeyboardState(out _);
+        rotation += 0.1f;
 
         if (states[(int)SDL.Scancode.W]) camera.Position.y += _cameraSpeed;
         if (states[(int)SDL.Scancode.S]) camera.Position.y -= _cameraSpeed;
@@ -115,7 +117,7 @@ public class App
         renderer.PushVertexUniform(uni);
         renderer.BeginPass(spriteBatcherPipeline);
         catSpriteBatcher.DrawSprite(cat, new Vec2(200.0f, 200.0f), new PackedColor(255, 255, 255, 255));
-        catSpriteBatcher.DrawSprite(cat, new Vec2(100.0f, 100.0f), new PackedColor(255, 0, 0, 255));
+        catSpriteBatcher.DrawSpritePro(cat, new Vec2(100.0f, 100.0f), 2f, rotation, new PackedColor(255, 0, 0, 255));
         catSpriteBatcher.Flush();
         renderer.EndPass();
 
