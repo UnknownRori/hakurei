@@ -7,6 +7,11 @@ public class Logger
         Console.WriteLine($"[LOG] {name}: {message}");
     }
 
+    public static void Warn(string name, string message)
+    {
+        Console.WriteLine($"[WARN] {name}: {message}");
+    }
+
     public static void Fatal(string name, string message)
     {
         Console.WriteLine($"[FATAL] {name}: {message}");

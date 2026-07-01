@@ -1,99 +1,181 @@
 ﻿using Hakurei.Engine.Math;
 using Hakurei.Engine.Renderer;
 using SDL3;
-using System.Runtime.InteropServices;
 
 namespace Hakurei.Engine.Renderer2D;
 
 public class Sprite2DBatcher
 {
     private GPURenderer renderer;
-    private Texture texture;
-    private GraphicsPipeline pipeline;
     private GPUBuffer<Vertex2D> vertexBuffer;
-    private GPUBuffer<UInt32> indicesBuffer;
+    static private GPUBuffer<UInt32> indicesBuffer;
+    static private bool _sinit = false;
+    private const int MAX_INSTANCE = 4096;
 
     private uint instanceCount = 0;
+    private uint _capacity;
     private List<Vertex2D> vertex = new List<Vertex2D>();
-    private List<UInt32> indices = new List<UInt32>();
-    private Camera2D _camera;
 
-    private RenderTarget? _renderTarget = null;
+    private Texture? _texture = null;
 
-    public Sprite2DBatcher(GPURenderer renderer, Texture texture, uint maxInstance = 256)
+    public Sprite2DBatcher(GPURenderer renderer, uint maxInstance = 256)
     {
         this.renderer = renderer;
-        this.texture = texture;
-        this.pipeline = GraphicPipeline2D.CreatePipeline(renderer.Window, renderer.Device);
-        this._camera = new Camera2D();
+        _capacity = maxInstance;
 
-        vertexBuffer = new GPUBuffer<Vertex2D>(renderer.Device, SDL.GPUBufferUsageFlags.Vertex, (int) maxInstance * 4);
-        indicesBuffer = new GPUBuffer<uint>(renderer.Device, SDL.GPUBufferUsageFlags.Index, (int) maxInstance * 6);
-    }
-
-    public void BindCamera(Camera2D camera)
-    {
-        this._camera = camera;
-    }
-
-    public void SetRenderTarget(RenderTarget? target)
-    {
-        this._renderTarget = target;
-    }
-
-    public void PushSprite(Vec2 position, PackedColor tint)
-    {
-        var width = texture.Width;
-        var height = texture.Height;
-        var baseCount = (UInt32) vertex.Count();
-
-        var vertices = new Vertex2D[]
+        if (maxInstance > MAX_INSTANCE)
         {
-            new () { Position = new Vec3(position.x        , position.y         , 0f), UV = new Vec2(0f, 1f), Tint = tint },
-            new () { Position = new Vec3(position.x + width, position.y         , 0f), UV = new Vec2(1f, 1f), Tint = tint },
-            new () { Position = new Vec3(position.x + width, position.y + height, 0f), UV = new Vec2(1f, 0f), Tint = tint },
-            new () { Position = new Vec3(position.x        , position.y + height, 0f), UV = new Vec2(0f, 0f), Tint = tint },
-        };
-        
-        var indexes = new UInt32[]
+            maxInstance = MAX_INSTANCE;
+            Logger.Warn("Renderer2D", $"Sprite2DBatcher create GPUBuffer beyond {MAX_INSTANCE}");
+        }
+
+        vertexBuffer = new GPUBuffer<Vertex2D>(renderer.Device, SDL.GPUBufferUsageFlags.Vertex, (int)maxInstance * 4);
+        if (!_sinit)
         {
-            baseCount,
-            baseCount + 1,
-            baseCount + 2,
-            baseCount + 2,
-            baseCount + 3,
-            baseCount,
-            
-        };
-        vertex.AddRange(vertices);
-        indices.AddRange(indexes);
-        instanceCount += 1;
-    }
-
-    public void Submit()
-    {
-        vertexBuffer.Upload(vertex.ToArray());
-        indicesBuffer.Upload(indices.ToArray());
-
-        UniformBlock uni = new UniformBlock(_camera.GetViewProjection(renderer.SwapChainWidth, renderer.SwapChainHeight));
-
-        renderer.SetRenderTarget(_renderTarget);
-        renderer.ClearScreen(new Vec4(1.0f, 0.0f, 0.0f, 1.0f));
-        renderer.BeginPass(pipeline);
-            renderer.PushVertexUniform(uni);
-            renderer.BindTexture(texture);
-            renderer.BindVertex(vertexBuffer);
-            renderer.BindIndices(indicesBuffer);
-            // TODO : Instance Draw
-            while (instanceCount > 0)
+            _sinit = true;
+            List<UInt32> indices = new List<UInt32>();
+            indicesBuffer = new GPUBuffer<uint>(renderer.Device, SDL.GPUBufferUsageFlags.Index, MAX_INSTANCE * 6);
+            for (uint i = 0; i < MAX_INSTANCE; i++)
             {
-                renderer.DrawIndexed(6, (instanceCount - 1) * 6);
-                instanceCount--;
-            }
-        renderer.EndPass();
+                UInt32 baseCount = i * 4;
+                indices.Add(baseCount);
+                indices.Add(baseCount + 1);
+                indices.Add(baseCount + 2);
 
-        indices.Clear();
+                indices.Add(baseCount + 2);
+                indices.Add(baseCount + 3);
+                indices.Add(baseCount);
+            }
+            indicesBuffer.Upload(indices.ToArray());
+        }
+    }
+
+    public void Flush()
+    {
+        if (_texture == null) throw new Exception("Texture must be binded first!");
+
+        vertexBuffer.Upload(vertex.ToArray());
+
+        renderer.BindTexture(_texture);
+        renderer.BindVertex(vertexBuffer);
+        renderer.BindIndices(indicesBuffer);
+
+        renderer.DrawIndexed(instanceCount * 6);
+
         vertex.Clear();
         instanceCount = 0;
+    }
+
+    public void DrawSprite(Sprite2D sprite)
+    {
+        DrawSprite(sprite.Texture, sprite.Position, new PackedColor(sprite.Tint));
+    }
+
+    public void DrawSprite(Texture texture, Vec2 position, PackedColor tint)
+    {
+        DrawSpritePro(texture, position, new(1f), 0f, Vec2.Zero, new(0f, 0f, texture.Width, texture.Height), tint);
+    }
+
+    public void DrawSpritePro(Texture texture, Vec2 position, float scale, float radiansRotation, PackedColor tint)
+    {
+        DrawSpritePro(
+            texture,
+            position,
+            new(scale),
+            radiansRotation,
+            new(texture.Width / 2f, texture.Height / 2f),
+            new(0f, 0f, texture.Width, texture.Height),
+            tint
+        );
+    }
+
+    public void DrawSpritePro(
+        Texture texture,
+        Vec2 position,
+        Vec2 scale,
+        float radiansRotation,
+        Vec2 origin,
+        Rect region,
+        PackedColor tint
+    )
+    {
+        if (_texture != null && _texture.texture != texture.texture)
+            Flush();
+        if (instanceCount > _capacity)
+            Flush();
+
+        _texture = texture;
+
+        float width = region.Width;
+        float height = region.Height;
+
+        UInt32 baseCount = (UInt32)vertex.Count;
+
+        float cos = MathF.Cos(radiansRotation);
+        float sin = MathF.Sin(radiansRotation);
+
+        Vec2 tl = new Vec2(-origin.x, -origin.y);
+        Vec2 tr = new Vec2(width - origin.x, -origin.y);
+        Vec2 br = new Vec2(width - origin.x, height - origin.y);
+        Vec2 bl = new Vec2(-origin.x, height - origin.y);
+
+        tl *= scale;
+        tr *= scale;
+        br *= scale;
+        bl *= scale;
+
+        tl = Rotate(tl, cos, sin);
+        tr = Rotate(tr, cos, sin);
+        br = Rotate(br, cos, sin);
+        bl = Rotate(bl, cos, sin);
+
+        tl += position;
+        tr += position;
+        br += position;
+        bl += position;
+
+        float u0 = region.X / texture.Width;
+        float v0 = region.Y / texture.Height;
+
+        float u1 = (region.X + region.Width) / texture.Width;
+        float v1 = (region.Y + region.Height) / texture.Height;
+
+        vertex.Add(new Vertex2D
+        {
+            Position = new Vec3(tl.x, tl.y, 0f),
+            UV = new Vec2(u0, v1),
+            Tint = tint
+        });
+
+        vertex.Add(new Vertex2D
+        {
+            Position = new Vec3(tr.x, tr.y, 0f),
+            UV = new Vec2(u1, v1),
+            Tint = tint
+        });
+
+        vertex.Add(new Vertex2D
+        {
+            Position = new Vec3(br.x, br.y, 0f),
+            UV = new Vec2(u1, v0),
+            Tint = tint
+        });
+
+        vertex.Add(new Vertex2D
+        {
+            Position = new Vec3(bl.x, bl.y, 0f),
+            UV = new Vec2(u0, v0),
+            Tint = tint
+        });
+
+        instanceCount++;
+    }
+
+    private static Vec2 Rotate(Vec2 v, float cos, float sin)
+    {
+        return new Vec2(
+            v.x * cos - v.y * sin,
+            v.x * sin + v.y * cos
+        );
     }
 }
