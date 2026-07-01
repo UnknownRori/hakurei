@@ -8,11 +8,12 @@ public class Sprite2DBatcher
 {
     private GPURenderer renderer;
     private GPUBuffer<Vertex2D> vertexBuffer;
-    private GPUBuffer<UInt32> indicesBuffer;
+    static private GPUBuffer<UInt32> indicesBuffer;
+    static private bool _sinit = false;
+    private const int MAX_INSTANCE = 4096;
 
     private uint instanceCount = 0;
     private List<Vertex2D> vertex = new List<Vertex2D>();
-    private List<UInt32> indices = new List<UInt32>();
 
     private Texture? _texture = null;
 
@@ -20,8 +21,31 @@ public class Sprite2DBatcher
     {
         this.renderer = renderer;
 
+        if (maxInstance > MAX_INSTANCE)
+        {
+            maxInstance = MAX_INSTANCE;
+            Logger.Warn("Renderer2D", $"Sprite2DBatcher create GPUBuffer beyond {MAX_INSTANCE}");
+        }
+
         vertexBuffer = new GPUBuffer<Vertex2D>(renderer.Device, SDL.GPUBufferUsageFlags.Vertex, (int)maxInstance * 4);
-        indicesBuffer = new GPUBuffer<uint>(renderer.Device, SDL.GPUBufferUsageFlags.Index, (int)maxInstance * 6);
+        if (!_sinit)
+        {
+            _sinit = true;
+            List<UInt32> indices = new List<UInt32>();
+            indicesBuffer = new GPUBuffer<uint>(renderer.Device, SDL.GPUBufferUsageFlags.Index, MAX_INSTANCE * 6);
+            for (uint i = 0; i < MAX_INSTANCE; i++)
+            {
+                UInt32 baseCount = i * 4;
+                indices.Add(baseCount);
+                indices.Add(baseCount + 1);
+                indices.Add(baseCount + 2);
+
+                indices.Add(baseCount + 2);
+                indices.Add(baseCount + 3);
+                indices.Add(baseCount);
+            }
+            indicesBuffer.Upload(indices.ToArray());
+        }
     }
 
     public void Flush()
@@ -29,7 +53,6 @@ public class Sprite2DBatcher
         if (_texture == null) throw new Exception("Texture must be binded first!");
 
         vertexBuffer.Upload(vertex.ToArray());
-        indicesBuffer.Upload(indices.ToArray());
 
         renderer.BindTexture(_texture);
         renderer.BindVertex(vertexBuffer);
@@ -37,7 +60,6 @@ public class Sprite2DBatcher
 
         renderer.DrawIndexed(instanceCount * 6);
 
-        indices.Clear();
         vertex.Clear();
         instanceCount = 0;
     }
@@ -141,14 +163,6 @@ public class Sprite2DBatcher
             UV = new Vec2(u0, v0),
             Tint = tint
         });
-
-        indices.Add(baseCount);
-        indices.Add(baseCount + 1);
-        indices.Add(baseCount + 2);
-
-        indices.Add(baseCount + 2);
-        indices.Add(baseCount + 3);
-        indices.Add(baseCount);
 
         instanceCount++;
     }
