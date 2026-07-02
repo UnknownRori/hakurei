@@ -12,6 +12,8 @@ public struct Vec4
     public float b { get => z; set => z = value; }
     public float a { get => w; set => w = value; }
 
+    public static Vec4 Black = new Vec4(0f, 0f, 0f, 1f);
+
     public Vec4(float x, float y, float z, float w)
     {
         this.x = x;

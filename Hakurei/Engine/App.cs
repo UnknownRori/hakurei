@@ -13,13 +13,10 @@ public class App
 
     Camera2D camera;
     GPURenderer renderer;
+    FullscreenRenderer fullscreenRenderer;
     Sprite2DBatcher catSpriteBatcher;
     GraphicsPipeline spriteBatcherPipeline;
-    GraphicsPipeline fullscreenPipeline;
     RenderTarget catRender;
-    private GPUBuffer<Vertex> vertexBuffer;
-    private GPUBuffer<UInt32> indicesBuffer;
-
     Texture cat;
     private const float _cameraSpeed = 4f;
     private float rotation = 0f;
@@ -35,30 +32,12 @@ public class App
         cat = new Texture(_device, "Assets/cat.png");
 
         renderer = new GPURenderer(_window, _device);
-        vertexBuffer = new GPUBuffer<Vertex>(renderer.Device, SDL.GPUBufferUsageFlags.Vertex, 4);
-        indicesBuffer = new GPUBuffer<uint>(renderer.Device, SDL.GPUBufferUsageFlags.Index, 6);
-        fullscreenPipeline = DefaultPipeline.CreatePipeline(_window, _device, new DefaultShader(_device));
+        fullscreenRenderer = new FullscreenRenderer(_window, renderer);
         spriteBatcherPipeline = GraphicPipeline2D.CreatePipeline(_window, _device);
 
         catSpriteBatcher = new Sprite2DBatcher(renderer);
         catRender = new RenderTarget(_device, 800, 600);
         camera = new Camera2D();
-        var vertices = new Vertex[]
-        {
-            new () { Position = new Vec3(-1f, -1f, 0f), UV = new Vec2(0f, 0f) },
-            new () { Position = new Vec3( 1f, -1f, 0f), UV = new Vec2(1f, 0f) },
-            new () { Position = new Vec3( 1f,  1f, 0f), UV = new Vec2(1f, 1f) },
-            new () { Position = new Vec3(-1f,  1f, 0f), UV = new Vec2(0f, 1f) },
-        };
-
-        var indexes = new UInt32[]
-        {
-            0, 1, 2,
-            2, 3, 0,
-        };
-
-        vertexBuffer.Upload(vertices);
-        indicesBuffer.Upload(indexes);
     }
 
     ~App()
@@ -121,21 +100,8 @@ public class App
         catSpriteBatcher.Flush();
         renderer.EndPass();
 
-        renderer.SetRenderTarget(null);
-        renderer.ClearScreen(new Vec4(0f, 1f, 0f, 1f));
-        renderer.BeginPass(fullscreenPipeline);
-        renderer.BindVertex(vertexBuffer);
-        renderer.BindIndices(indicesBuffer);
-        renderer.BindTexture(catRender.Texture);
-        renderer.DrawIndexed(6);
+        fullscreenRenderer.Blit(catRender, null);
         renderer.EndPass();
-
-        /*renderer.SetRenderTarget(null);*/
-        /*renderer.ClearScreen(new Vec4(0f, 0f, 0f, 1f));*/
-        /*renderer.BeginPass(fullscreenPipeline);*/
-        /*catSpriteBatcher.DrawSprite(catRender.Texture, new Vec2(-1f, -1f), new PackedColor(255, 255, 255, 255));*/
-        /*catSpriteBatcher.Flush();*/
-        /*renderer.EndPass();*/
         renderer.Commit();
     }
 }
