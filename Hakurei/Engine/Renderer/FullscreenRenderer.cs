@@ -16,18 +16,26 @@ public class FullscreenRenderer
         new () { Position = new Vec3( 1f, -1f, 0f), UV = new Vec2(1f, 0f) },
         new () { Position = new Vec3( 1f,  1f, 0f), UV = new Vec2(1f, 1f) },
         new () { Position = new Vec3(-1f,  1f, 0f), UV = new Vec2(0f, 1f) },
+
+        new () { Position = new Vec3(-1f, -1f, 0f), UV = new Vec2(0f, 1f) },
+        new () { Position = new Vec3( 1f, -1f, 0f), UV = new Vec2(1f, 1f) },
+        new () { Position = new Vec3( 1f,  1f, 0f), UV = new Vec2(1f, 0f) },
+        new () { Position = new Vec3(-1f,  1f, 0f), UV = new Vec2(0f, 0f) },
     };
 
     static readonly UInt32[] indexes = new UInt32[] {
         0, 1, 2,
         2, 3, 0,
+
+        4, 5, 6,
+        6, 7, 4,
     };
 
     public FullscreenRenderer(Window window, GPURenderer renderer)
     {
         _renderer = renderer;
-        vertexBuffer = new GPUBuffer<Vertex>(renderer.Device, SDL.GPUBufferUsageFlags.Vertex, 4);
-        indicesBuffer = new GPUBuffer<uint>(renderer.Device, SDL.GPUBufferUsageFlags.Index, 6);
+        vertexBuffer = new GPUBuffer<Vertex>(renderer.Device, SDL.GPUBufferUsageFlags.Vertex, verticesSwapChain.Length);
+        indicesBuffer = new GPUBuffer<uint>(renderer.Device, SDL.GPUBufferUsageFlags.Index, indexes.Length);
         fullscreenPipeline = DefaultPipeline.CreatePipeline(window, renderer.Device, new DefaultShader(renderer.Device));
 
         vertexBuffer.Upload(verticesSwapChain);
@@ -42,7 +50,8 @@ public class FullscreenRenderer
             _renderer.BindVertex(vertexBuffer);
             _renderer.BindIndices(indicesBuffer);
             _renderer.BindTexture(src.Texture);
-            _renderer.DrawIndexed(6);
+            if (dst == null) _renderer.DrawIndexed(6);
+            else _renderer.DrawIndexed(6, 6);
         _renderer.EndPass();
     }
 }

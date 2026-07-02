@@ -17,6 +17,7 @@ public class App
     Sprite2DBatcher catSpriteBatcher;
     GraphicsPipeline spriteBatcherPipeline;
     RenderTarget catRender;
+    RenderTarget catRender2;
     Texture cat;
     private const float _cameraSpeed = 4f;
     private float rotation = 0f;
@@ -37,6 +38,7 @@ public class App
 
         catSpriteBatcher = new Sprite2DBatcher(renderer);
         catRender = new RenderTarget(_device, 800, 600);
+        catRender2 = new RenderTarget(_device, 400, 300);
         camera = new Camera2D();
     }
 
@@ -100,7 +102,8 @@ public class App
         catSpriteBatcher.Flush();
         renderer.EndPass();
 
-        fullscreenRenderer.Blit(catRender, null);
+        fullscreenRenderer.Blit(catRender, catRender2);
+        fullscreenRenderer.Blit(catRender2, null);
         renderer.EndPass();
         renderer.Commit();
     }
