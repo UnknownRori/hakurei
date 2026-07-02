@@ -8,7 +8,7 @@ public class Sprite2DBatcher
 {
     private GPURenderer renderer;
     private GPUBuffer<Vertex2D> vertexBuffer;
-    static private GPUBuffer<UInt32> indicesBuffer;
+    static private GPUBuffer<UInt16> indicesBuffer;
     static private bool _sinit = false;
     private const int MAX_INSTANCE = 4096;
 
@@ -25,17 +25,17 @@ public class Sprite2DBatcher
         if (!_sinit)
         {
             _sinit = true;
-            List<UInt32> indices = new List<UInt32>();
-            indicesBuffer = new GPUBuffer<uint>(renderer.Device, SDL.GPUBufferUsageFlags.Index, MAX_INSTANCE * 6);
+            List<UInt16> indices = new List<UInt16>();
+            indicesBuffer = new GPUBuffer<UInt16>(renderer.Device, SDL.GPUBufferUsageFlags.Index, MAX_INSTANCE * 6);
             for (uint i = 0; i < MAX_INSTANCE; i++)
             {
-                UInt32 baseCount = i * 4;
+                UInt16 baseCount = (UInt16)(i * 4);
                 indices.Add(baseCount);
-                indices.Add(baseCount + 1);
-                indices.Add(baseCount + 2);
+                indices.Add((UInt16)(baseCount + 1));
+                indices.Add((UInt16)(baseCount + 2));
 
-                indices.Add(baseCount + 2);
-                indices.Add(baseCount + 3);
+                indices.Add((UInt16)(baseCount + 2));
+                indices.Add((UInt16)(baseCount + 3));
                 indices.Add(baseCount);
             }
             indicesBuffer.Upload(indices.ToArray());

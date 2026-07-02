@@ -8,7 +8,7 @@ public class FullscreenRenderer
 {
     GPURenderer _renderer;
     private GPUBuffer<Vertex> vertexBuffer;
-    private GPUBuffer<UInt32> indicesBuffer;
+    private GPUBuffer<UInt16> indicesBuffer;
     GraphicsPipeline fullscreenPipeline;
 
     static readonly Vertex[] verticesSwapChain = new Vertex[] {
@@ -23,7 +23,7 @@ public class FullscreenRenderer
         new () { Position = new Vec3(-1f,  1f, 0f), UV = new Vec2(0f, 0f) },
     };
 
-    static readonly UInt32[] indexes = new UInt32[] {
+    static readonly UInt16[] indexes = new UInt16[] {
         0, 1, 2,
         2, 3, 0,
 
@@ -35,7 +35,7 @@ public class FullscreenRenderer
     {
         _renderer = renderer;
         vertexBuffer = new GPUBuffer<Vertex>(renderer.Device, SDL.GPUBufferUsageFlags.Vertex, verticesSwapChain.Length);
-        indicesBuffer = new GPUBuffer<uint>(renderer.Device, SDL.GPUBufferUsageFlags.Index, indexes.Length);
+        indicesBuffer = new GPUBuffer<UInt16>(renderer.Device, SDL.GPUBufferUsageFlags.Index, indexes.Length);
         fullscreenPipeline = DefaultPipeline.CreatePipeline(window, renderer.Device, new DefaultShader(renderer.Device));
 
         vertexBuffer.Upload(verticesSwapChain);

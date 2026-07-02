@@ -71,7 +71,7 @@ public class GPURenderer
         );
     }
 
-    public void BindIndices(GPUBuffer<UInt32> indicesBuffer)
+    public void BindIndices(GPUBuffer<UInt16> indicesBuffer)
     {
         SDL.GPUBufferBinding binding = new()
         {
@@ -83,7 +83,7 @@ public class GPURenderer
         SDL.BindGPUIndexBuffer(
             _renderPass,
            binding,
-           SDL.GPUIndexElementSize.IndexElementSize32Bit
+           SDL.GPUIndexElementSize.IndexElementSize16Bit
         );
     }
 
