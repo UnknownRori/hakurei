@@ -58,6 +58,7 @@ public class App
             {
                 PollEvent(ev);
             }
+            Input.Update();
 
             Update();
             Draw();
@@ -77,13 +78,12 @@ public class App
 
     protected virtual void Update()
     {
-        var states = SDL.GetKeyboardState(out _);
         rotation += 0.1f;
 
-        if (states[(int)SDL.Scancode.W]) camera.Position.y += _cameraSpeed;
-        if (states[(int)SDL.Scancode.S]) camera.Position.y -= _cameraSpeed;
-        if (states[(int)SDL.Scancode.A]) camera.Position.x += _cameraSpeed;
-        if (states[(int)SDL.Scancode.D]) camera.Position.x -= _cameraSpeed;
+        if (Input.IsKeyDown(Input.Key.Up)) camera.Position.y += _cameraSpeed;
+        if (Input.IsKeyDown(Input.Key.Down)) camera.Position.y -= _cameraSpeed;
+        if (Input.IsKeyDown(Input.Key.Right)) camera.Position.x += _cameraSpeed;
+        if (Input.IsKeyDown(Input.Key.Left)) camera.Position.x -= _cameraSpeed;
 
     }
 
