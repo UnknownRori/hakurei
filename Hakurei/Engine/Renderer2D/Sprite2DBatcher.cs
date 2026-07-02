@@ -66,79 +66,95 @@ public class Sprite2DBatcher
         instanceCount = 0;
     }
 
-    public void DrawSprite(Sprite2D sprite)
+    public void Draw(Sprite2D sprite)
     {
-        DrawSprite(sprite.Texture, sprite.Position, new PackedColor(sprite.Tint));
+        Draw(sprite.Texture, sprite.Position, new PackedColor(sprite.Tint));
     }
 
-    public void DrawSprite(Texture texture, Vec2 position, PackedColor tint)
+    public void Draw(Texture texture, Vec2 position, PackedColor tint)
     {
-        DrawSpritePro(texture, position, new(1f), 0f, Vec2.Zero, new(0f, 0f, texture.Width, texture.Height), tint);
-    }
-
-    public void DrawSpritePro(Texture texture, Vec2 position, float scale, float radiansRotation, PackedColor tint)
-    {
-        DrawSpritePro(
+        Draw(
             texture,
-            position,
-            new(scale),
-            radiansRotation,
-            new(texture.Width / 2f, texture.Height / 2f),
-            new(0f, 0f, texture.Width, texture.Height),
+            new Rect(0, 0, texture.Width, texture.Height),
+            new Rect(position.x, position.y, texture.Width, texture.Height),
+            Vec2.Zero,
+            0f,
             tint
         );
     }
 
-    public void DrawSpritePro(
+    public void Draw(
         Texture texture,
         Vec2 position,
-        Vec2 scale,
+        float scale,
         float radiansRotation,
+        PackedColor tint)
+    {
+        float width = texture.Width * scale;
+        float height = texture.Height * scale;
+
+        Draw(
+            texture,
+            new Rect(0, 0, texture.Width, texture.Height),
+            new Rect(position.x, position.y, width, height),
+            new Vec2(width / 2f, height / 2f),
+            radiansRotation,
+            tint
+        );
+    }
+
+    public void Draw(
+        Texture texture,
+        Rect srcRect,
+        Rect dstRect,
         Vec2 origin,
-        Rect region,
+        float radiansRotation,
         PackedColor tint
     )
     {
         if (_texture != null && _texture.texture != texture.texture)
             Flush();
-        if (instanceCount > _capacity)
+
+        if (instanceCount >= _capacity)
             Flush();
 
         _texture = texture;
-
-        float width = region.Width;
-        float height = region.Height;
 
         UInt32 baseCount = (UInt32)vertex.Count;
 
         float cos = MathF.Cos(radiansRotation);
         float sin = MathF.Sin(radiansRotation);
 
+        // Destination size
+        float width = dstRect.Width;
+        float height = dstRect.Height;
+
+        // Local corners relative to origin
         Vec2 tl = new Vec2(-origin.x, -origin.y);
         Vec2 tr = new Vec2(width - origin.x, -origin.y);
         Vec2 br = new Vec2(width - origin.x, height - origin.y);
         Vec2 bl = new Vec2(-origin.x, height - origin.y);
 
-        tl *= scale;
-        tr *= scale;
-        br *= scale;
-        bl *= scale;
-
+        // Rotate
         tl = Rotate(tl, cos, sin);
         tr = Rotate(tr, cos, sin);
         br = Rotate(br, cos, sin);
         bl = Rotate(bl, cos, sin);
+
+        // Translate to destination position
+        Vec2 position = new Vec2(dstRect.X, dstRect.Y);
 
         tl += position;
         tr += position;
         br += position;
         bl += position;
 
-        float u0 = region.X / texture.Width;
-        float v0 = region.Y / texture.Height;
+        // UVs from source rect
+        float u0 = srcRect.X / texture.Width;
+        float v0 = srcRect.Y / texture.Height;
 
-        float u1 = (region.X + region.Width) / texture.Width;
-        float v1 = (region.Y + region.Height) / texture.Height;
+        float u1 = (srcRect.X + srcRect.Width) / texture.Width;
+        float v1 = (srcRect.Y + srcRect.Height) / texture.Height;
 
         vertex.Add(new Vertex2D
         {

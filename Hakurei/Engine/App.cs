@@ -97,8 +97,8 @@ public class App
         renderer.ClearScreen(new Vec4(0f, 0f, 0f, 1f));
         renderer.PushVertexUniform(uni);
         renderer.BeginPass(spriteBatcherPipeline);
-        catSpriteBatcher.DrawSprite(cat, new Vec2(200.0f, 200.0f), new PackedColor(255, 255, 255, 255));
-        catSpriteBatcher.DrawSpritePro(cat, new Vec2(100.0f, 100.0f), 2f, rotation, new PackedColor(255, 0, 0, 255));
+        catSpriteBatcher.Draw(cat, new Vec2(200.0f, 200.0f), new PackedColor(255, 255, 255, 255));
+        catSpriteBatcher.Draw(cat, new Vec2(100.0f, 100.0f), 2f, rotation, new PackedColor(255, 0, 0, 255));
         catSpriteBatcher.Flush();
         renderer.EndPass();
 
