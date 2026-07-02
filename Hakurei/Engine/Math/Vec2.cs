@@ -47,7 +47,7 @@ public struct Vec2
         return new Vec2(x / len, y / len);
     }
 
-    public readonly Vec2 Rotated(float radians)
+    public readonly Vec2 Rotate(float radians)
     {
         float cos = MathF.Cos(radians);
         float sin = MathF.Sin(radians);
@@ -58,6 +58,13 @@ public struct Vec2
         );
     }
 
+    public readonly Vec2 Rotate(float cos, float sin)
+    {
+        return new Vec2(
+            x * cos - y * sin,
+            x * sin + y * cos
+        );
+    }
     public static float Dot(Vec2 a, Vec2 b)
     {
         return a.x * b.x + a.y * b.y;

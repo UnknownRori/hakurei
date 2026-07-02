@@ -13,23 +13,15 @@ public class Sprite2DBatcher
     private const int MAX_INSTANCE = 4096;
 
     private uint instanceCount = 0;
-    private uint _capacity;
     private List<Vertex2D> vertex = new List<Vertex2D>();
 
     private Texture? _texture = null;
 
-    public Sprite2DBatcher(GPURenderer renderer, uint maxInstance = 256)
+    public Sprite2DBatcher(GPURenderer renderer)
     {
         this.renderer = renderer;
-        _capacity = maxInstance;
 
-        if (maxInstance > MAX_INSTANCE)
-        {
-            maxInstance = MAX_INSTANCE;
-            Logger.Warn("Renderer2D", $"Sprite2DBatcher create GPUBuffer beyond {MAX_INSTANCE}");
-        }
-
-        vertexBuffer = new GPUBuffer<Vertex2D>(renderer.Device, SDL.GPUBufferUsageFlags.Vertex, (int)maxInstance * 4);
+        vertexBuffer = new GPUBuffer<Vertex2D>(renderer.Device, SDL.GPUBufferUsageFlags.Vertex, MAX_INSTANCE * 4);
         if (!_sinit)
         {
             _sinit = true;
@@ -115,7 +107,7 @@ public class Sprite2DBatcher
         if (_texture != null && _texture.texture != texture.texture)
             Flush();
 
-        if (instanceCount >= _capacity)
+        if (instanceCount >= MAX_INSTANCE)
             Flush();
 
         _texture = texture;
@@ -136,10 +128,10 @@ public class Sprite2DBatcher
         Vec2 bl = new Vec2(-origin.x, height - origin.y);
 
         // Rotate
-        tl = Rotate(tl, cos, sin);
-        tr = Rotate(tr, cos, sin);
-        br = Rotate(br, cos, sin);
-        bl = Rotate(bl, cos, sin);
+        tl = tl.Rotate(cos, sin);
+        tr = tr.Rotate(cos, sin);
+        br = br.Rotate(cos, sin);
+        bl = bl.Rotate(cos, sin);
 
         // Translate to destination position
         Vec2 position = new Vec2(dstRect.X, dstRect.Y);
@@ -185,13 +177,5 @@ public class Sprite2DBatcher
         });
 
         instanceCount++;
-    }
-
-    private static Vec2 Rotate(Vec2 v, float cos, float sin)
-    {
-        return new Vec2(
-            v.x * cos - v.y * sin,
-            v.x * sin + v.y * cos
-        );
     }
 }
