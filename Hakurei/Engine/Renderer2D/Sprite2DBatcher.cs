@@ -4,7 +4,7 @@ using SDL3;
 
 namespace Hakurei.Engine.Renderer2D;
 
-public class Sprite2DBatcher
+public class Sprite2DBatcher : IDisposable
 {
     private GPURenderer renderer;
     private GPUBuffer<Vertex2D> vertexBuffer;
@@ -41,6 +41,17 @@ public class Sprite2DBatcher
             indicesBuffer.Upload(indices.ToArray());
         }
     }
+
+    public void Dispose()
+    {
+        vertexBuffer.Dispose();
+    }
+    public static void Quit()
+    {
+        indicesBuffer.Dispose();
+        _sinit = false;
+    }
+
 
     public void Flush()
     {

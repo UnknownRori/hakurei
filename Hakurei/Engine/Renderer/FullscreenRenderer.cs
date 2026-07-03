@@ -4,7 +4,7 @@ using System;
 
 namespace Hakurei.Engine.Renderer;
 
-public class FullscreenRenderer
+public class FullscreenRenderer : IDisposable
 {
     GPURenderer _renderer;
     private GPUBuffer<Vertex> vertexBuffer;
@@ -40,6 +40,13 @@ public class FullscreenRenderer
 
         vertexBuffer.Upload(verticesSwapChain);
         indicesBuffer.Upload(indexes);
+    }
+
+    public void Dispose()
+    {
+        vertexBuffer.Dispose(); 
+        indicesBuffer.Dispose();
+        fullscreenPipeline.Dispose();
     }
 
     public void Blit(RenderTarget src, RenderTarget? dst = null)
