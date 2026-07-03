@@ -1,6 +1,7 @@
 ﻿using Hakurei.Engine.Math;
 using Hakurei.Engine.Renderer;
 using Hakurei.Engine.Renderer2D;
+using Hakurei.Engine.Audio;
 using SDL3;
 
 namespace Hakurei.Engine;
@@ -22,9 +23,18 @@ public class App
     private const float _cameraSpeed = 4f;
     private float rotation = 0f;
 
+    AudioMixer mixer;
+    Music snd;
+
     public App(string title, int width, int height, int flags)
     {
-        if (!SDL.Init(SDL.InitFlags.Video)) return;
+        if (!SDL.Init(SDL.InitFlags.Video | SDL.InitFlags.Audio)) return;
+        Mixer.Init();
+
+        mixer = new AudioMixer(SDL.AudioDeviceDefaultPlayback);
+        snd = new Music(mixer, "Assets/Gensokyo.mp3");
+        mixer.Play(snd);
+
 
         _window = new Window("urmom", 800, 600, 0);
         _device = new GPUDevice(_window);
@@ -47,6 +57,7 @@ public class App
         _device.Dispose();
         _window.Dispose();
         ShaderCross.Quit();
+        Mixer.Quit();
         SDL.Quit();
     }
 
