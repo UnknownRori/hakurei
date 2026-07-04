@@ -6,7 +6,7 @@ using SDL3;
 
 namespace Hakurei.Engine;
 
-public class App
+public class App : IDisposable
 {
     protected bool _running = true;
 
@@ -15,12 +15,9 @@ public class App
         HakureiEngine.Init(title, width, height, flags);
     }
 
-    ~App()
+    public void Dispose()
     {
         HakureiEngine.Dispose();
-        ShaderCross.Quit();
-        Mixer.Quit();
-        SDL.Quit();
     }
 
     public virtual void Run()
@@ -36,6 +33,7 @@ public class App
             Update();
             Draw();
         }
+        Dispose();
     }
 
 

@@ -27,6 +27,9 @@ public class GraphicsPipelineBuilder<T>
         Marshal.FreeHGlobal(vertexAttrPtr);
         Marshal.FreeHGlobal(vertexBufDescPtr);
 
+        vert.Dispose();
+        frag.Dispose();
+
         return new GraphicsPipeline(device, pipelineId);
     }
 

@@ -34,6 +34,7 @@ public class HakureiEngine
 
         mixer = new AudioMixer(SDL.AudioDeviceDefaultPlayback);
         pipeline2D = GraphicPipeline2D.CreatePipeline(window, device);
+        fullscreenRenderer = new FullscreenRenderer(window, renderer);
         sprite2DBatcher = new Sprite2DBatcher(renderer);
     }
 

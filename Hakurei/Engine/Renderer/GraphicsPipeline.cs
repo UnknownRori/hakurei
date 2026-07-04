@@ -24,6 +24,7 @@ public class GraphicsPipeline: IDisposable
     {
         if (_pipeline == nint.Zero) return;
         SDL.ReleaseGPUGraphicsPipeline(_device.device, _pipeline);
+        Logger.Log("Renderer", $"Pipeline {_id} destroyed ");
         _pipeline = nint.Zero;
     }
 }
