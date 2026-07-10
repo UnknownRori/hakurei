@@ -77,59 +77,60 @@ public static unsafe class GPUUploader
         );
     }
 
-    public static void UploadBuffer<T>(
-        GPUDevice device,
-        nint buffer,
-        ReadOnlySpan<T> data,
-        int offsetBytes = 0
-    ) where T : unmanaged
-    {
-        uint size =
-            (uint)(sizeof(T) * data.Length);
+    // INFO : Planned removal
+    //public static void UploadBuffer<T>(
+    //    GPUDevice device,
+    //    nint buffer,
+    //    ReadOnlySpan<T> data,
+    //    int offsetBytes = 0
+    //) where T : unmanaged
+    //{
+    //    uint size =
+    //        (uint)(sizeof(T) * data.Length);
 
-        T[] temp = data.ToArray();
+    //    T[] temp = data.ToArray();
 
-        Upload(
-            device,
-            size,
+    //    Upload(
+    //        device,
+    //        size,
 
-            mapped =>
-            {
-                fixed (T* src = temp)
-                {
-                    Buffer.MemoryCopy(
-                        src,
-                        (void*)mapped,
-                        size,
-                        size
-                    );
-                }
-            },
+    //        mapped =>
+    //        {
+    //            fixed (T* src = temp)
+    //            {
+    //                Buffer.MemoryCopy(
+    //                    src,
+    //                    (void*)mapped,
+    //                    size,
+    //                    size
+    //                );
+    //            }
+    //        },
 
-            (copyPass, transferBuffer) =>
-            {
-                var src = new SDL.GPUTransferBufferLocation
-                {
-                    TransferBuffer = transferBuffer,
-                    Offset = 0
-                };
+    //        (copyPass, transferBuffer) =>
+    //        {
+    //            var src = new SDL.GPUTransferBufferLocation
+    //            {
+    //                TransferBuffer = transferBuffer,
+    //                Offset = 0
+    //            };
 
-                var dst = new SDL.GPUBufferRegion
-                {
-                    Buffer = buffer,
-                    Offset = (uint)offsetBytes,
-                    Size = size
-                };
+    //            var dst = new SDL.GPUBufferRegion
+    //            {
+    //                Buffer = buffer,
+    //                Offset = (uint)offsetBytes,
+    //                Size = size
+    //            };
 
-                SDL.UploadToGPUBuffer(
-                    copyPass,
-                    src,
-                    dst,
-                    false
-                );
-            }
-        );
-    }
+    //            SDL.UploadToGPUBuffer(
+    //                copyPass,
+    //                src,
+    //                dst,
+    //                false
+    //            );
+    //        }
+    //    );
+    //}
 
     public static void UploadTexture(
     GPUDevice device,

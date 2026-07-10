@@ -16,6 +16,7 @@ public class Sprite2DBatcher : IDisposable
     private List<Vertex2D> vertex = new List<Vertex2D>();
 
     private Texture? _texture = null;
+    private nint _textSampler;
 
     public Sprite2DBatcher(GPURenderer renderer)
     {
@@ -40,6 +41,24 @@ public class Sprite2DBatcher : IDisposable
             }
             indicesBuffer.Upload(indices.ToArray());
         }
+
+        var samplerInfo = new SDL.GPUSamplerCreateInfo
+        {
+            MinFilter = SDL.GPUFilter.Nearest,
+            MagFilter = SDL.GPUFilter.Nearest,
+
+            MipmapMode = SDL.GPUSamplerMipmapMode.Nearest,
+
+            AddressModeU = SDL.GPUSamplerAddressMode.Repeat,
+            AddressModeV = SDL.GPUSamplerAddressMode.Repeat,
+            AddressModeW = SDL.GPUSamplerAddressMode.Repeat
+        };
+
+        _textSampler =
+            SDL.CreateGPUSampler(
+                renderer.Device.device,
+                samplerInfo
+            );
     }
 
     public void Dispose()
@@ -188,5 +207,44 @@ public class Sprite2DBatcher : IDisposable
         });
 
         instanceCount++;
+    }
+
+    public void DrawText(nint text, Vec2 position, PackedColor tint)
+    {
+        unsafe
+        {
+            TTF.GPUAtlasDrawSequence* seq = (TTF.GPUAtlasDrawSequence*)TTF.GetGPUTextDrawData(text);
+            if (seq == null)
+            {
+                Logger.Fatal("Sprite2DBatcher", $"SDL error: {SDL.GetError()}");
+            }
+            for (; seq != null; seq = (TTF.GPUAtlasDrawSequence*)seq->Next)
+            {
+                var atlas = new Texture(seq->AtlasTexture, _textSampler);
+
+                if (_texture != null && _texture.texture != atlas.texture)
+                    Flush();
+                if (instanceCount + (seq->NumVertices / 4) > MAX_INSTANCE)
+                    Flush();
+
+                _texture = atlas;
+                var xyPtr = (SDL.FPoint*)seq->XY;
+                var uvPtr = (SDL.FPoint*)seq->UV;
+                var idxPtr = (int*)seq->Indices;
+
+                for (int i = 0; i < seq->NumVertices; i++)
+                {
+                    var xy = xyPtr[i];
+                    var uv = uvPtr[i];
+                    vertex.Add(new Vertex2D
+                    {
+                        Position = new Vec3(xy.X + position.x, xy.Y + position.y, 0f),
+                        UV = new Vec2(uv.X, uv.Y),
+                        Tint = tint
+                    });
+                }
+                instanceCount += (uint)(seq->NumVertices / 4);
+            }
+        }
     }
 }

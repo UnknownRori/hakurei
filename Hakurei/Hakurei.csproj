@@ -21,6 +21,9 @@
     <None Update="Assets\cat.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Assets\Rori.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Engine\Shaders\2D.frag.hlsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

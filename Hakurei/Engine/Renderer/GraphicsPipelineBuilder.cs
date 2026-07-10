@@ -40,7 +40,13 @@ public class GraphicsPipelineBuilder<T>
             Format = SDL.GetGPUSwapchainTextureFormat(device.device, win.window),
             BlendState = new SDL.GPUColorTargetBlendState
             {
-                EnableBlend = false
+                EnableBlend = true,
+                SrcColorBlendFactor = SDL.GPUBlendFactor.SrcAlpha,
+                DstColorBlendFactor = SDL.GPUBlendFactor.OneMinusSrcAlpha,
+                ColorBlendOp = SDL.GPUBlendOp.Add,
+                SrcAlphaBlendFactor = SDL.GPUBlendFactor.One,
+                DstAlphaBlendFactor = SDL.GPUBlendFactor.OneMinusSrcAlpha,
+                AlphaBlendOp = SDL.GPUBlendOp.Add,
             }
         };
         var colorTargetDescPtr = SDL.StructureToPointer<SDL.GPUColorTargetDescription>(colorTargetDesc);

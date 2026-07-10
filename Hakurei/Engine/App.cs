@@ -3,6 +3,7 @@ using Hakurei.Engine.Renderer;
 using Hakurei.Engine.Renderer2D;
 using Hakurei.Engine.Audio;
 using SDL3;
+using Hakurei.Engine.TextRendering;
 
 namespace Hakurei.Engine;
 
@@ -55,8 +56,9 @@ public class App : IDisposable
     protected virtual void Draw()
     {
         HakureiEngine.BeginDrawing();
-            HakureiEngine.ClearScreen(new Vec4(1f, 0f, 0f, 1f));
+            HakureiEngine.ClearScreen(new Vec4(0f, 0f, 0f, 1f));
             HakureiEngine.BeginPass(HakureiEngine.Pipeline2D);
+
             HakureiEngine.EndPass();
         HakureiEngine.EndDrawing();
     }
