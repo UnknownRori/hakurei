@@ -48,12 +48,12 @@ public class App : IDisposable
         }
     }
 
-    protected virtual void Update()
+    public virtual void Update()
     {
 
     }
 
-    protected virtual void Draw()
+    public virtual void Draw()
     {
         HakureiEngine.BeginDrawing();
             HakureiEngine.ClearScreen(new Vec4(0f, 0f, 0f, 1f));
