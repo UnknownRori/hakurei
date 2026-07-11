@@ -12,10 +12,14 @@ public class GPUTextRendering : IDisposable
         _GPUTextEngine = TTF.CreateGPUTextEngine(device.device);
     }
 
-    public nint CreateText(Font font, string text)
+    public Text CreateText(Font font, string text)
     {
         nint obj = TTF.CreateText(_GPUTextEngine, font.font, text, (nuint) text.Length);
-        return obj;
+        if (obj == nint.Zero)
+        {
+            Logger.Fatal("TextRenderer", $"Failed to create Text Object: {SDL.GetError()}");
+        }
+        return new(obj);
     }
 
     public void Dispose()
