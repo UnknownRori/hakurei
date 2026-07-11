@@ -70,10 +70,17 @@ public class Texture : IDisposable
         Logger.Log("Renderer", $"Texture created successfully ({_id})");
     }
 
+    public Texture(nint texture, nint sampler)
+    {
+        _texture = texture;
+        _sampler = sampler;   
+    }
+
     public void Dispose()
     {
         if (_texture == nint.Zero) return;
         SDL.ReleaseGPUTexture(_device.device, _texture);
+        SDL.ReleaseGPUSampler(_device.device, sampler);
         _texture = nint.Zero;
         Logger.Log("Renderer", $"Texture destroyed successfully ({_id})");
     }

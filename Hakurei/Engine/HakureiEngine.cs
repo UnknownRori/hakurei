@@ -2,6 +2,7 @@
 using Hakurei.Engine.Math;
 using Hakurei.Engine.Renderer;
 using Hakurei.Engine.Renderer2D;
+using Hakurei.Engine.TextRendering;
 using SDL3;
 
 namespace Hakurei.Engine;
@@ -15,17 +16,20 @@ public class HakureiEngine
     static protected GraphicsPipeline pipeline2D;
     static protected FullscreenRenderer fullscreenRenderer;
     static protected AudioMixer mixer;
+    static protected GPUTextRendering textRenderer;
 
     static public Window Window { get { return window; } }
     static public GPUDevice Device { get { return device; } }
     static public GPURenderer Renderer { get { return renderer; } }
     static public GraphicsPipeline Pipeline2D { get { return pipeline2D; } }
     static public Sprite2DBatcher Sprite2DBatcher { get { return sprite2DBatcher; } }
+    static public GPUTextRendering TextRenderer { get { return textRenderer; } }
 
     public static void Init(string title, int width, int height, int flags)
     {
         if (!SDL.Init(SDL.InitFlags.Video | SDL.InitFlags.Audio)) return;
         Mixer.Init();
+        TTF.Init();
 
         window = new Window(title, width, height, flags);
         device = new GPUDevice(window);
@@ -36,6 +40,7 @@ public class HakureiEngine
         pipeline2D = GraphicPipeline2D.CreatePipeline(window, device);
         fullscreenRenderer = new FullscreenRenderer(window, renderer);
         sprite2DBatcher = new Sprite2DBatcher(renderer);
+        textRenderer = new GPUTextRendering(device);
     }
 
     public static void Dispose()
