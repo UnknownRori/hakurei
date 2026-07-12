@@ -34,6 +34,7 @@ public class HakureiEngine
         window = new Window(title, width, height, flags);
         device = new GPUDevice(window);
         renderer = new GPURenderer(window, device);
+        SamplerCache.Init(device);
         ShaderCross.Init();
 
         mixer = new AudioMixer(SDL.AudioDeviceDefaultPlayback);
@@ -50,6 +51,7 @@ public class HakureiEngine
         fullscreenRenderer.Dispose();
         pipeline2D.Dispose();
         sprite2DBatcher.Dispose();
+        SamplerCache.Dispose();
         device.Dispose();
         window.Dispose();
 

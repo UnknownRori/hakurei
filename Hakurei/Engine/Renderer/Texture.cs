@@ -23,7 +23,7 @@ public class Texture : IDisposable
         Image image = new Image(filename);
         _device = device;
         _texture = CreateGPUTexture(device, SDL.GPUTextureType.TextureType2D, SDL.GPUTextureUsageFlags.Sampler, image.width, image.height);
-        _sampler = CreateSampler();
+        _sampler = SamplerCache.NearestFilter.sampler;
         Width = image.width;
         Height = image.height;
         Upload(image);
@@ -43,7 +43,7 @@ public class Texture : IDisposable
             image.width, 
             image.height
         );
-        _sampler = CreateSampler();
+        _sampler = SamplerCache.NearestFilter.sampler;
         Width = image.width;
         Height = image.height;
         Upload(image);
@@ -62,7 +62,7 @@ public class Texture : IDisposable
             width, 
             height
         );
-        _sampler = CreateSampler();
+        _sampler = SamplerCache.NearestFilter.sampler;
         Width = width;
         Height = height;
 
@@ -111,31 +111,6 @@ public class Texture : IDisposable
         return texture;
     }
 
-    public nint CreateSampler()
-    {
-        var samplerInfo = new SDL.GPUSamplerCreateInfo
-        {
-            MinFilter = SDL.GPUFilter.Nearest,
-            MagFilter = SDL.GPUFilter.Nearest,
-
-            MipmapMode = SDL.GPUSamplerMipmapMode.Nearest,
-
-            AddressModeU = SDL.GPUSamplerAddressMode.Repeat,
-            AddressModeV = SDL.GPUSamplerAddressMode.Repeat,
-            AddressModeW = SDL.GPUSamplerAddressMode.Repeat
-        };
-
-        nint sampler =
-            SDL.CreateGPUSampler(
-                _device.device,
-                samplerInfo
-            );
-        if (sampler == nint.Zero)
-        {
-            Logger.Fatal("Renderer", $"Failed to create sampler: {SDL.GetError()}");
-        }
-        return sampler;
-    }
     private void Upload(Image 
         image)
     {
